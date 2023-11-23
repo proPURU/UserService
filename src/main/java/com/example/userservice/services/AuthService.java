@@ -1,26 +1,28 @@
 package com.example.userservice.services;
 
+
 import com.example.userservice.dtos.SignUpRequestDto;
 import com.example.userservice.dtos.UserDto;
 import com.example.userservice.exception.UserAlreadyExistsException;
 import com.example.userservice.exception.UserDoesNotExistException;
+import com.example.userservice.models.PayLoad;
 import com.example.userservice.models.Session;
 import com.example.userservice.models.SessionStatus;
 import com.example.userservice.models.User;
 import com.example.userservice.repositories.SessionRepository;
 import com.example.userservice.repositories.UserRepository;
+import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.id.uuid.StandardRandomStrategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class AuthService {
@@ -38,7 +40,6 @@ public class AuthService {
    }
 
     public ResponseEntity<UserDto> login(String email,String password) throws  UserDoesNotExistException {
-
         Optional<User> userOptional=userRepository.findByEmail(email);
         // Need to check already there or not
 
@@ -55,13 +56,28 @@ public class AuthService {
 
         RandomStringUtils randomStringUtils = new RandomStringUtils();
         String token = RandomStringUtils.randomAscii(20);
+        //HW is here -> May be need to Modify
+        Map<Long,Object> payloadMap=new HashMap<>();
+
+        PayLoad payLoad=new PayLoad();
+        payLoad.setUserId(user.getId());
+        payLoad.setEmail(user.getEmail());
+
+        payloadMap.put(user.getId(),payLoad);
+
+
+        // Need to implement jwt
+        String jws= String.valueOf(Jwts.builder().claims());
+
+
         MultiValueMapAdapter<String, String > headers = new MultiValueMapAdapter<>(new HashMap<>());
-        headers.add("AUTH_TOKEN", token);
+        headers.add("AUTH_TOKEN", jws);
 
         Session session = new Session();
         session.setSessionStatus(SessionStatus.ACTIVE);
-        session.setToken(token);
+        session.setToken(jws);
         session.setUser(user);
+
         sessionRepository.save(session);
 
 
