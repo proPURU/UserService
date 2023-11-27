@@ -11,17 +11,16 @@ import com.example.userservice.models.SessionStatus;
 import com.example.userservice.models.User;
 import com.example.userservice.repositories.SessionRepository;
 import com.example.userservice.repositories.UserRepository;
-import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.id.uuid.StandardRandomStrategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.*;
 
 @Service
@@ -29,45 +28,39 @@ public class AuthService {
 
    private UserRepository userRepository;
    private SessionRepository sessionRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
 
 
-   public AuthService(UserRepository userRepository, SessionRepository sessionRepository )
+   public AuthService(UserRepository userRepository, SessionRepository sessionRepository,PasswordEncoder passwordEncoder )
    {
        this.userRepository=userRepository;
        this.sessionRepository=sessionRepository;
-       this.bCryptPasswordEncoder=new BCryptPasswordEncoder();
+       this.passwordEncoder=passwordEncoder;
    }
-
     public ResponseEntity<UserDto> login(String email,String password) throws  UserDoesNotExistException {
         Optional<User> userOptional=userRepository.findByEmail(email);
         // Need to check already there or not
-
         if (userOptional.isEmpty()) {
             throw new UserDoesNotExistException("User with email: " + email + " doesn't exist.");
         }
 
-
         User user=userOptional.get();
-        if(!bCryptPasswordEncoder.matches(password,user.getPassword()))
+        if(!passwordEncoder.matches(password,user.getPassword()))
         {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
         RandomStringUtils randomStringUtils = new RandomStringUtils();
         String token = RandomStringUtils.randomAscii(20);
         //HW is here -> May be need to Modify
         Map<Long,Object> payloadMap=new HashMap<>();
-
         PayLoad payLoad=new PayLoad();
         payLoad.setUserId(user.getId());
         payLoad.setEmail(user.getEmail());
-
         payloadMap.put(user.getId(),payLoad);
 
 
         // Need to implement jwt
-        String jws= String.valueOf(Jwts.builder().claims());
+        String jws= "hey";
 
 
         MultiValueMapAdapter<String, String > headers = new MultiValueMapAdapter<>(new HashMap<>());
@@ -99,12 +92,10 @@ public class AuthService {
         {
             throw new UserAlreadyExistsException("User with"+email+" already exists.");
         }
-
         User user=new User();
         user.setEmail(email);
-        user.setPassword(bCryptPasswordEncoder.encode(password));
+        user.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
-
         return UserDto.from(savedUser);
     }
 
