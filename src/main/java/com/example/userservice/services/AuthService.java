@@ -60,7 +60,7 @@ public class AuthService {
 
 
         // Need to implement jwt
-        String jws= "hey";
+        String jws ="imtoken";
 
 
         MultiValueMapAdapter<String, String > headers = new MultiValueMapAdapter<>(new HashMap<>());

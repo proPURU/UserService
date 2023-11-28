@@ -16,3 +16,7 @@ public class CustomGrantedAuthority implements GrantedAuthority {
         return role.getName();
     }
 }
+
+// "email":"purushattom@gmail.com",
+//         "password":"puru"
+
