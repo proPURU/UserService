@@ -1,9 +1,6 @@
 package com.example.userservice.controller;
 
-import com.example.userservice.dtos.LoginRequestDto;
-import com.example.userservice.dtos.SignUpRequestDto;
-import com.example.userservice.dtos.UserDto;
-import com.example.userservice.dtos.ValidateTokenRequestDto;
+import com.example.userservice.dtos.*;
 import com.example.userservice.exception.UserAlreadyExistsException;
 import com.example.userservice.exception.UserDoesNotExistException;
 import com.example.userservice.models.SessionStatus;
@@ -14,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,10 +39,21 @@ public class AuthController {
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<SessionStatus> validateToken(@RequestBody ValidateTokenRequestDto request) {
-        SessionStatus sessionStatus = authService.validate(request.getToken(), request.getUserId());
+    public ResponseEntity<ValidatetokenResponseDto> validateToken(@RequestBody ValidateTokenRequestDto request) {
+        Optional<UserDto> userDto = authService.validate(request.getToken(), request.getUserId());
 
-        return new ResponseEntity<>(sessionStatus, HttpStatus.OK);
+        if (userDto.isEmpty()) {
+            ValidatetokenResponseDto response = new ValidatetokenResponseDto();
+            response.setSessionStatus(SessionStatus.INVALID);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        ValidatetokenResponseDto response = new ValidatetokenResponseDto();
+        response.setSessionStatus(SessionStatus.ACTIVE);
+        response.setUserDto(userDto.get());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
 
 }

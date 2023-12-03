@@ -4,7 +4,6 @@ package com.example.userservice.security.models;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-
 @Entity
 @Table(name = "`authorization`")
 public class Authorization {

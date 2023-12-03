@@ -1,13 +1,12 @@
 package com.example.userservice.dtos;
 
+import com.example.userservice.models.Role;
 import com.example.userservice.models.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.management.relation.Role;
 import java.util.HashSet;
 import java.util.Set;
-
 @Getter
 @Setter
 public class UserDto {
@@ -20,8 +19,5 @@ public class UserDto {
         userDto.setRoles(user.getRoles());
 
         return userDto;
-    }
-
-    private void setRoles(Set<com.example.userservice.models.Role> roles) {
     }
 }
