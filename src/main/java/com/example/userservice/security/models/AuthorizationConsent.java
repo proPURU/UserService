@@ -1,5 +1,6 @@
 package com.example.userservice.security.models;
 
+
 import jakarta.persistence.*;
 
 import java.io.Serializable;
